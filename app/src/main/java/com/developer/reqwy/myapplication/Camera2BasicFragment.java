@@ -16,7 +16,6 @@
 
 package com.developer.reqwy.myapplication;
 
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -55,14 +54,10 @@ import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
-import com.developer.reqwy.myapplication.recognition.ImageReceiver;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -128,8 +123,6 @@ public class Camera2BasicFragment extends Fragment
      */
     private static final int MAX_PREVIEW_WIDTH = 1920;
 
-
-
     /**
      * Max preview height that is guaranteed by Camera2 API
      */
@@ -139,16 +132,12 @@ public class Camera2BasicFragment extends Fragment
      * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
      * {@link TextureView}.
      */
-
-
-
     private final TextureView.SurfaceTextureListener mSurfaceTextureListener
             = new TextureView.SurfaceTextureListener() {
 
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
             openCamera(width, height);
-
         }
 
         @Override
@@ -254,9 +243,7 @@ public class Camera2BasicFragment extends Fragment
 
         @Override
         public void onImageAvailable(ImageReader reader) {
-
-            ImageReceiver.getInstance().receive(reader.acquireLatestImage());
-            mBackgroundHandler.post(ImageReceiver.getInstance());
+            mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile));
         }
 
     };
@@ -434,22 +421,8 @@ public class Camera2BasicFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View result = inflater.inflate(R.layout.fragment_camera2_basic, container, false);
-//        documentInterface = inflater.inflate(R.layout.pasport_interface, null);
-//        ViewGroup insertPoint = (ViewGroup)result.findViewById(R.id.insertPoint);
-//        if (insertPoint == null){
-//            insertPoint = (ViewGroup) container.findViewById(R.id.insertPoint);
-//        }
-//        insertPoint.addView(documentInterface);
-        return result;
+        return inflater.inflate(R.layout.fragment_camera2_basic, container, false);
     }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-    }
-
-
 
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
@@ -937,6 +910,49 @@ public class Camera2BasicFragment extends Fragment
         }
     }
 
+    /**
+     * Saves a JPEG {@link Image} into the specified {@link File}.
+     */
+    private static class ImageSaver implements Runnable {
+
+        /**
+         * The JPEG image
+         */
+        private final Image mImage;
+        /**
+         * The file we save the image into.
+         */
+        private final File mFile;
+
+        public ImageSaver(Image image, File file) {
+            mImage = image;
+            mFile = file;
+        }
+
+        @Override
+        public void run() {
+            ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
+            byte[] bytes = new byte[buffer.remaining()];
+            buffer.get(bytes);
+            FileOutputStream output = null;
+            try {
+                output = new FileOutputStream(mFile);
+                output.write(bytes);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                mImage.close();
+                if (null != output) {
+                    try {
+                        output.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+    }
 
     /**
      * Compares two {@code Size}s based on their areas.
