@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AbsoluteLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+    <!--android:background="@drawable/passport">-->
+
+    <View
+        android:id="@+id/passportSurname"
+        android:layout_x="60dp"
+        android:layout_y="135dp"
+        android:layout_width="300dp"
+        android:layout_height="60dp"
+        android:background="@drawable/rectangle"/>
+    <View
+        android:id="@+id/passportName"
+        android:layout_x="40dp"
+        android:layout_y="195dp"
+        android:layout_width="320dp"
+        android:layout_height="37dp"
+        android:background="@drawable/rectangle"/>
+    <View
+        android:id="@+id/passportFatherName"
+        android:layout_x="48dp"
+        android:layout_y="232dp"
+        android:layout_width="312dp"
+        android:layout_height="30dp"
+        android:background="@drawable/rectangle"/>
+    <View
+        android:id="@+id/sex"
+        android:layout_x="30dp"
+        android:layout_y="265dp"
+        android:layout_width="71dp"
+        android:layout_height="30dp"
+        android:background="@drawable/rectangle"/>
+    <View
+        android:id="@+id/birthdayDate"
+        android:layout_x="150dp"
+        android:layout_y="262dp"
+        android:layout_width="210dp"
+        android:layout_height="35dp"
+        android:background="@drawable/rectangle"/>
+
+    <View
+        android:id="@+id/placeOfBirth1"
+        android:layout_x="56dp"
+        android:layout_y="297dp"
+        android:layout_width="304dp"
+        android:layout_height="38dp"
+        android:background="@drawable/rectangle"/>
+    <View
+        android:id="@+id/placeOfBirth2"
+        android:layout_x="12dp"
+        android:layout_y="335dp"
+        android:layout_width="348dp"
+        android:layout_height="73dp"
+        android:background="@drawable/rectangle"/>
+
+    <View
+        android:id="@+id/Number"
+        android:layout_x="371dp"
+        android:layout_y="140dp"
+        android:layout_width="33dp"
+        android:layout_height="270dp"
+        android:background="@drawable/rectangle"/>
+
+</AbsoluteLayout>
