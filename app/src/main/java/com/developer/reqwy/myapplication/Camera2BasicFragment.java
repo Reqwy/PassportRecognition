@@ -421,7 +421,14 @@ public class Camera2BasicFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_camera2_basic, container, false);
+        View result = inflater.inflate(R.layout.fragment_camera2_basic, container, false);
+        View documentInterface = inflater.inflate(R.layout.pasport_interface, null);
+        ViewGroup insertPoint = (ViewGroup)result.findViewById(R.id.insertPoint);
+        if (insertPoint == null){
+            insertPoint = (ViewGroup) container.findViewById(R.id.insertPoint);
+        }
+        insertPoint.addView(documentInterface);
+        return result;
     }
 
     @Override
