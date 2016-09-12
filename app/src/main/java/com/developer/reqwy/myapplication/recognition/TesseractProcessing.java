@@ -1,4 +1,4 @@
-package com.developer.reqwy.myapplication.imageprocessing;
+package com.developer.reqwy.myapplication.recognition;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -20,10 +20,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
 
 
-
-public class TesseractProcessing {
+public class TesseractProcessing implements Recognizer {
 
     private static final String TAG = "TESSERACT_OCR";
 
@@ -58,8 +59,9 @@ public class TesseractProcessing {
     }
 
 
-    public TesseractProcessing(Context context){
+    public TesseractProcessing(Context context, List<Bitmap> images){
         processingContext = context;
+
     }
 
     /**
@@ -187,4 +189,8 @@ public class TesseractProcessing {
         return extractedText;
     }
 
+    @Override
+    public Map<String, String> recognize() {
+        return null;
+    }
 }
