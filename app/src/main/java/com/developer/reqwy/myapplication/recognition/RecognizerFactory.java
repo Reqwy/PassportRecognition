@@ -1,6 +1,7 @@
 package com.developer.reqwy.myapplication.recognition;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -21,7 +22,7 @@ public class RecognizerFactory {
 
     public Recognizer getRecognizer(){
         if (checkInternetConnection()){
-            return new APIRecognizer(slicer.getFilesForApi());
+            return new APIRecognizer((Activity) context, slicer.getFilesForApi());
         } else {
             return new TesseractProcessing(context, slicer.getBitmapsForTesseract());
         }
@@ -32,6 +33,6 @@ public class RecognizerFactory {
                 (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork.isConnected();
+        return activeNetwork != null && activeNetwork.isConnected();
     }
 }

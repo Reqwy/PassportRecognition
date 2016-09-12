@@ -1,14 +1,7 @@
 package com.developer.reqwy.myapplication.recognition;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
@@ -20,7 +13,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 import java.util.Map;
 
 
@@ -30,38 +22,16 @@ public class TesseractProcessing implements Recognizer {
 
     private TessBaseAPI tessBaseApi;
     private Context processingContext;
-    private Uri outputFileUri;
-    private String result = "empty";
     private static final String lang = "rus";
+    private Map<String, Bitmap> images;
 
-
-    private static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/TesseractSample/";
+    private static  String DATA_PATH;
     private static final String TESSDATA = "tessdata";
 
-
-
-    public void process() {
-
-        try {
-            String IMGS_PATH = Environment.getExternalStorageDirectory().toString() + "/TesseractSample/imgs";
-            prepareDirectory(IMGS_PATH);
-
-            String img_path = IMGS_PATH + "/ocr.jpg";
-
-            outputFileUri = Uri.fromFile(new File(img_path));
-
-
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-        }
-        prepareTesseract();
-        startOCR(outputFileUri, processingContext);
-    }
-
-
-    public TesseractProcessing(Context context, List<Bitmap> images){
+    public TesseractProcessing(Context context, Map<String, Bitmap> imageMap){
         processingContext = context;
-
+        this.images = imageMap;
+        DATA_PATH = context.getExternalFilesDir(null).toString() + "/TesseractSample/";
     }
 
     /**
@@ -71,7 +41,6 @@ public class TesseractProcessing implements Recognizer {
      * @throws Exception
      */
     private void prepareDirectory(String path) {
-
         File dir = new File(path);
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
@@ -89,7 +58,6 @@ public class TesseractProcessing implements Recognizer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         copyTessDataFiles(TESSDATA, processingContext);
     }
 
@@ -131,29 +99,20 @@ public class TesseractProcessing implements Recognizer {
         }
     }
 
-
-    /**
-     * don't run this code in main thread - it stops UI thread. Create AsyncTask instead.
-     * http://developer.android.com/intl/ru/reference/android/os/AsyncTask.html
-     *
-     * @param imgUri
-     */
-    private void startOCR(Uri imgUri, Context context) {
+    private void startOCR() {
+        String result = "";
         try {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 4; // 1 - means max size. 4 - means maxsize/4 size. Don't use value <4, because you need more memory in the heap to store your data.
-            Bitmap bitmap = BitmapFactory.decodeFile(imgUri.getPath(), options);
-
-            result = extractText(bitmap);
-
-
+            for (String field: images.keySet()) {
+                result += field + ": " + extractText(field, images.get(field)) + "\n";
+            }
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
+        Log.d("Tesseract_OCR_result", result);
     }
 
 
-    private String extractText(Bitmap bitmap) {
+    private String extractText(String field, Bitmap bitmap) {
         try {
             tessBaseApi = new TessBaseAPI();
         } catch (Exception e) {
@@ -163,24 +122,25 @@ public class TesseractProcessing implements Recognizer {
             }
         }
 
-        tessBaseApi.init(DATA_PATH, lang);
+        File f = new File(DATA_PATH);
+        if (!f.exists()){
+            Log.d("TESSERACT_INIT","tessdata folder doesnt exist");
+        }
 
 //       //EXTRA SETTINGS
 //        //For example if we only want to detect numbers
 //        tessBaseApi.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "1234567890");
 //
-//        //blackList Example
-//        tessBaseApi.setVariable(TessBaseAPI.VAR_CHAR_BLACKLIST, "!@#$%^&*()_+=-qwertyuiop[]}{POIU" +
-//                "YTRWQasdASDfghFGHjklJKLl;L:'\"\\|~`xcvXCVbnmBNM,./<>?");
 
+        if (field.toLowerCase().contains("номер") || field.toLowerCase().contains("дата")){
+            initWithNumberField();
+        } else {
+            init();
+        }
         Log.d(TAG, "Training file loaded");
         tessBaseApi.setImage(bitmap);
         String extractedText = "empty result";
         try {
-            JSONObject obj = new JSONObject();
-            byte[] arr = new byte[2];
-
-            obj.put("file", arr);
             extractedText = tessBaseApi.getUTF8Text();
         } catch (Exception e) {
             Log.e(TAG, "Error in recognizing text.");
@@ -189,8 +149,30 @@ public class TesseractProcessing implements Recognizer {
         return extractedText;
     }
 
+    private void init(){
+        //        //blackList Example
+//        tessBaseApi.setVariable(TessBaseAPI.VAR_CHAR_BLACKLIST, "!@#$%^&*()_+=-[]}{" +
+//                ";:'\"\\|~`,./<>?");
+        tessBaseApi.init(DATA_PATH, lang);
+
+    }
+
+    private void reInit(){
+        tessBaseApi.end();
+        init();
+
+    }
+
+    private void initWithNumberField(){
+        tessBaseApi.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "1234567890");
+        tessBaseApi.init(DATA_PATH, lang);
+
+    }
+
     @Override
     public Map<String, String> recognize() {
+        prepareTesseract();
+        startOCR();
         return null;
     }
 }

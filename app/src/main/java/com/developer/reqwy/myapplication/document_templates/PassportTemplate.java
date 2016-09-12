@@ -7,7 +7,7 @@ public class PassportTemplate extends DocumentTemplate {
 
     public PassportTemplate(boolean land){
         this.land = land;
-        if (land){
+        if (!land){
             fields.put("Фамилия", new DocumentFieldRectangle(60, 135, 300, 60));
             fields.put("Имя", new DocumentFieldRectangle(40, 195, 320, 37));
             fields.put("Отчество", new DocumentFieldRectangle(48, 232, 312, 30));

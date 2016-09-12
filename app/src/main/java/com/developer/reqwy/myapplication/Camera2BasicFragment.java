@@ -62,7 +62,6 @@ import android.widget.Toast;
 
 import com.developer.reqwy.myapplication.document_templates.DocumentType;
 import com.developer.reqwy.myapplication.imageprocessing.preprocessors.ImagePreProcessor;
-import com.developer.reqwy.myapplication.imageprocessing.preprocessors.ImageSlicer;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -84,6 +83,7 @@ public class Camera2BasicFragment extends Fragment
      */
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     private static final int REQUEST_CAMERA_PERMISSION = 1;
+    private static final int REQUEST_INTERNET_PERMISSION = 2;
     private static final String FRAGMENT_DIALOG = "dialog";
 
     static {
@@ -246,31 +246,31 @@ public class Camera2BasicFragment extends Fragment
     private final ImageReader.OnImageAvailableListener mOnImageAvailableListener
             = new ImageReader.OnImageAvailableListener() {
 
+        boolean alreadyProcessed = false;
+
         @Override
         public void onImageAvailable(ImageReader reader) {
-            // TODO IF rotated LAND -> apply transform.
-            // AFTER GOT BITMAP -> PASS TO SLICER. FUCK.
-            // SLICE AND SAVE THERE. THEN FINALLY PASS TO RECOGNISER.
-            // ???
-            // PROFIT
-            Bitmap bitmapToProcess;
-            Bitmap bm = mTextureView.getBitmap();
-            boolean land = false;
-            int rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
-            if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation){
-                land = true;
-                Matrix transform = new Matrix();
-                mTextureView.getTransform(transform);
-                Matrix inverseMatrix = new Matrix();
-                transform.invert(inverseMatrix);
-                inverseMatrix.postRotate(180);
-                Bitmap bitmapInv = Bitmap.createBitmap(bm, 0, 0, mTextureView.getWidth(), mTextureView.getHeight(), inverseMatrix,
-                        true);
-                bitmapToProcess = bitmapInv;
-            } else {
-                bitmapToProcess = bm;
+            if (!alreadyProcessed) {
+                Bitmap bitmapToProcess;
+                Bitmap bm = mTextureView.getBitmap();
+                boolean land = false;
+                int rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+                if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
+                    land = true;
+                    Matrix transform = new Matrix();
+                    mTextureView.getTransform(transform);
+                    Matrix inverseMatrix = new Matrix();
+                    transform.invert(inverseMatrix);
+                    inverseMatrix.postRotate(180);
+                    Bitmap bitmapInv = Bitmap.createBitmap(bm, 0, 0, mTextureView.getWidth(), mTextureView.getHeight(), inverseMatrix,
+                            true);
+                    bitmapToProcess = bitmapInv;
+                } else {
+                    bitmapToProcess = bm;
+                }
+                alreadyProcessed = true;
+                mBackgroundHandler.post(new ImagePreProcessor(bitmapToProcess, land, DocumentType.PASSPORT, getActivity()));
             }
-            mBackgroundHandler.post(new ImagePreProcessor(bitmapToProcess, land, DocumentType.PASSPORT, getActivity()));
         }
 
     };
@@ -514,6 +514,15 @@ public class Camera2BasicFragment extends Fragment
         }
     }
 
+    private void requestInternetPermission() {
+        if (FragmentCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.INTERNET)) {
+            new ConfirmationInternetDialog().show(getChildFragmentManager(), FRAGMENT_DIALOG);
+        } else {
+            FragmentCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET},
+                    REQUEST_INTERNET_PERMISSION);
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -522,7 +531,13 @@ public class Camera2BasicFragment extends Fragment
                 ErrorDialog.newInstance(getString(R.string.request_permission))
                         .show(getChildFragmentManager(), FRAGMENT_DIALOG);
             }
-        } else {
+        } else if (requestCode == REQUEST_INTERNET_PERMISSION){
+            if (grantResults.length != 1 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                ErrorDialog.newInstance(getString(R.string.request_internet_permission))
+                        .show(getChildFragmentManager(), FRAGMENT_DIALOG);
+            }
+        }
+        else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
@@ -648,6 +663,11 @@ public class Camera2BasicFragment extends Fragment
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
             requestCameraPermission();
+            return;
+        }
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.INTERNET)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestInternetPermission();
             return;
         }
         setUpCameraOutputs(width, height);
@@ -921,9 +941,9 @@ public class Camera2BasicFragment extends Fragment
             mCaptureSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback,
                     mBackgroundHandler);
             // After this, the camera will go back to the normal state of preview.
-            mState = STATE_PREVIEW;
-            mCaptureSession.setRepeatingRequest(mPreviewRequest, mCaptureCallback,
-                    mBackgroundHandler);
+//            mState = STATE_PREVIEW;
+//            mCaptureSession.setRepeatingRequest(mPreviewRequest, mCaptureCallback,
+//                    mBackgroundHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -1061,6 +1081,35 @@ public class Camera2BasicFragment extends Fragment
                             FragmentCompat.requestPermissions(parent,
                                     new String[]{Manifest.permission.CAMERA},
                                     REQUEST_CAMERA_PERMISSION);
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Activity activity = parent.getActivity();
+                                    if (activity != null) {
+                                        activity.finish();
+                                    }
+                                }
+                            })
+                    .create();
+        }
+    }
+
+    public static class ConfirmationInternetDialog extends DialogFragment {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            final Fragment parent = getParentFragment();
+            return new AlertDialog.Builder(getActivity())
+                    .setMessage(R.string.request_internet_permission)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            FragmentCompat.requestPermissions(parent,
+                                    new String[]{Manifest.permission.INTERNET},
+                                    REQUEST_INTERNET_PERMISSION);
                         }
                     })
                     .setNegativeButton(android.R.string.cancel,

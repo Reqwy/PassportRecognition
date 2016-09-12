@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 
 import com.developer.reqwy.myapplication.document_templates.DocumentFieldRectangle;
@@ -17,7 +18,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ImageSlicer {
 
@@ -29,26 +32,27 @@ public class ImageSlicer {
         this.initialImage = initialImage;
     }
 
-    private List<File> filesForApi;
-    private List<Bitmap> bitmapsForTesseract;
+    private Map<String, File> filesForApi;
+    private Map<String, Bitmap> bitmapsForTesseract;
 
     public void slice(DocumentType doctype, boolean land){
         DocumentTemplate template = TemplateFactory.getTemplate(doctype, land);
-        filesForApi = new ArrayList<>();
-        bitmapsForTesseract = new ArrayList<>();
+        filesForApi = new HashMap<>();
+        bitmapsForTesseract = new HashMap<>();
         for (String field :template.getFieldNames()){
             DocumentFieldRectangle rect = template.getRectangle(field);
             // badass shit that can break our lifer
-            Bitmap bmp = Bitmap.createBitmap(initialImage, rect.leftUp().x, rect.leftUp().y,
-                    rect.getWidth(), rect.getHeight());
-            bitmapsForTesseract.add(bmp);
+            Bitmap bmp = Bitmap.createBitmap(initialImage, dipToPix(rect.leftUp().x), dipToPix(rect.leftUp().y),
+                    dipToPix(rect.getWidth()), dipToPix(rect.getHeight()));
+            bitmapsForTesseract.put(field, bmp);
             File mFile = new File(context.getExternalFilesDir(null), field + ".png");
             FileOutputStream out = null;
             try {
                 out = new FileOutputStream(mFile);
                 bmp.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
                 // PNG is a lossless format, the compression factor (100) is ignored
-                filesForApi.add(mFile);
+                Log.d("ImageSlicer", "Successfully saved image at " + mFile.getAbsolutePath());
+                filesForApi.put(field, mFile);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -63,11 +67,11 @@ public class ImageSlicer {
         }
     }
 
-    public List<Bitmap> getBitmapsForTesseract() {
+    public Map<String, Bitmap> getBitmapsForTesseract() {
         return bitmapsForTesseract;
     }
 
-    public List<File> getFilesForApi() {
+    public Map<String, File> getFilesForApi() {
         return filesForApi;
     }
 
