@@ -61,7 +61,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.developer.reqwy.myapplication.document_templates.DocumentType;
-import com.developer.reqwy.myapplication.imageprocessing.preprocessors.ImageReceiver;
+import com.developer.reqwy.myapplication.imageprocessing.preprocessors.ImagePreProcessor;
 import com.developer.reqwy.myapplication.imageprocessing.preprocessors.ImageSlicer;
 
 import java.io.File;
@@ -248,27 +248,29 @@ public class Camera2BasicFragment extends Fragment
 
         @Override
         public void onImageAvailable(ImageReader reader) {
-            ImageReceiver callback = new ImageReceiver(reader.acquireLatestImage(), DocumentType.PASSPORT,
-                    getResources().getConfiguration().orientation, getActivity());
-            callback.setHeight(mTextureView.getHeight());
-            callback.setWidth(mTextureView.getWidth());
             // TODO IF rotated LAND -> apply transform.
             // AFTER GOT BITMAP -> PASS TO SLICER. FUCK.
             // SLICE AND SAVE THERE. THEN FINALLY PASS TO RECOGNISER.
             // ???
             // PROFIT
-
-            mBackgroundHandler.post(callback);
-            Matrix transform = new Matrix();
-            mTextureView.getTransform(transform);
-            Matrix inverseMatrix = new Matrix();
-            transform.invert(inverseMatrix);
-            inverseMatrix.postRotate(180);
+            Bitmap bitmapToProcess;
             Bitmap bm = mTextureView.getBitmap();
-            Bitmap bitmapInv = Bitmap.createBitmap(bm, 0, 0, mTextureView.getWidth(), mTextureView.getHeight(), inverseMatrix,
-                    true);
-
-            int l = 5;
+            boolean land = false;
+            int rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+            if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation){
+                land = true;
+                Matrix transform = new Matrix();
+                mTextureView.getTransform(transform);
+                Matrix inverseMatrix = new Matrix();
+                transform.invert(inverseMatrix);
+                inverseMatrix.postRotate(180);
+                Bitmap bitmapInv = Bitmap.createBitmap(bm, 0, 0, mTextureView.getWidth(), mTextureView.getHeight(), inverseMatrix,
+                        true);
+                bitmapToProcess = bitmapInv;
+            } else {
+                bitmapToProcess = bm;
+            }
+            mBackgroundHandler.post(new ImagePreProcessor(bitmapToProcess, land, DocumentType.PASSPORT, getActivity()));
         }
 
     };
@@ -803,28 +805,7 @@ public class Camera2BasicFragment extends Fragment
         mTextureView.setTransform(matrix);
     }
 
-    private Matrix reverseTransform(){
-        Activity activity = getActivity();
-        if (null == mTextureView || null == mPreviewSize || null == activity) {
-            return null;
-        }
-        int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-        Matrix matrix = new Matrix();
-        RectF viewRect = new RectF(0, 0, mTextureView.getWidth(), mTextureView.getHeight());
-        RectF bufferRect = new RectF(0, 0, mPreviewSize.getHeight(), mPreviewSize.getWidth());
-        float centerX = viewRect.centerX();
-        float centerY = viewRect.centerY();
-        if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
-            float scaleX = mPreviewSize.getWidth() / mTextureView.getWidth();
-            matrix.postRotate(-90 * (rotation - 2), centerX, centerY);
-            matrix.postScale((float) (1.0 / scaleX), 1, centerX, centerY);
-            bufferRect.offset(-(centerX - bufferRect.centerX()), -(centerY - bufferRect.centerY()));
-            matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL);
-        } else if (Surface.ROTATION_180 == rotation) {
-            matrix.postRotate(-180, centerX, centerY);
-        }
-        return matrix;
-    }
+
 
 
     /**
