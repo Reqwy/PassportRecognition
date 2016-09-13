@@ -1,6 +1,7 @@
 package com.developer.reqwy.myapplication.recognition;
 
 import android.app.Activity;
+import android.util.Log;
 
 import java.io.File;
 import java.util.List;
@@ -22,11 +23,12 @@ public class APIRecognizer implements Recognizer {
     public Map<String, String> recognize() {
 //        for (String field: files.keySet()) {
             File f = files.get("Имя");
-            OCRAsyncTask oCRAsyncTask = new OCRAsyncTask(context, API_KEY, false, f, language,
+            OCRAsyncTask oCRAsyncTask = new OCRAsyncTask(context, API_KEY, false, f, language, "Имя",
                     new IOCRCallBack() {
                         @Override
                         public void getOCRCallBackResult(String response) {
                             String m = response;
+
                         }
                     });
             oCRAsyncTask.execute();
