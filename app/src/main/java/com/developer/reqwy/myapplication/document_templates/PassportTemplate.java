@@ -4,7 +4,6 @@ package com.developer.reqwy.myapplication.document_templates;
 public class PassportTemplate extends DocumentTemplate {
 
     private final boolean land;
-
     public PassportTemplate(boolean land){
         this.land = land;
         if (!land){

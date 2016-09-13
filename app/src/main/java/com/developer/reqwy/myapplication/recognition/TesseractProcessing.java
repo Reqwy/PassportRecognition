@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.developer.reqwy.myapplication.document_templates.DocumentTemplate;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import org.json.JSONObject;
@@ -24,12 +25,14 @@ public class TesseractProcessing implements Recognizer {
     private Context processingContext;
     private static final String lang = "rus";
     private Map<String, Bitmap> images;
+    private DocumentTemplate template;
 
     private static  String DATA_PATH;
     private static final String TESSDATA = "tessdata";
 
-    public TesseractProcessing(Context context, Map<String, Bitmap> imageMap){
+    public TesseractProcessing(Context context, Map<String, Bitmap> imageMap, DocumentTemplate template){
         processingContext = context;
+        this.template = template;
         this.images = imageMap;
         DATA_PATH = context.getExternalFilesDir(null).toString() + "/TesseractSample/";
     }

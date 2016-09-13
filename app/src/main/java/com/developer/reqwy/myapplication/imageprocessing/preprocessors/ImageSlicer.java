@@ -54,7 +54,7 @@ public class ImageSlicer {
                 Bitmap temp = Bitmap.createBitmap(initialImage, dipToPix(rect.leftUp().x), dipToPix(rect.leftUp().y),
                         dipToPix(rect.getWidth()), dipToPix(rect.getHeight()));
                 Matrix transform = new Matrix();
-                transform.postRotate(90);
+                transform.postRotate(-90);
                 bmp = Bitmap.createBitmap(temp, 0, 0, temp.getWidth(), temp.getHeight(), transform, true);
             }
             bitmapsForTesseract.put(field, bmp);

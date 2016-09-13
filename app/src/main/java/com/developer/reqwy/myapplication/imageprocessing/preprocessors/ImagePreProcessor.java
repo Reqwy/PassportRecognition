@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.developer.reqwy.myapplication.document_templates.DocumentType;
+import com.developer.reqwy.myapplication.document_templates.TemplateFactory;
 import com.developer.reqwy.myapplication.recognition.RecognizerFactory;
 
 import java.io.File;
@@ -38,7 +39,8 @@ public class ImagePreProcessor implements Runnable {
         saveInitial();
         slicer = new ImageSlicer(context, image);
         slicer.slice(docType, land);
-        RecognizerFactory factory = new RecognizerFactory(context, slicer);
+        RecognizerFactory factory
+                = new RecognizerFactory(context, slicer, TemplateFactory.getTemplate(docType, land));
         factory.getRecognizer().recognize();
     }
 

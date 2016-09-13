@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
@@ -20,6 +22,8 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -32,9 +36,10 @@ public class OCRAsyncTask extends AsyncTask {
 
     private final String twoHyphens = "--";
     private final String lineEnd = "\r\n";
-    private final String boundary = "----apiclient-" + System.currentTimeMillis();
+    private final String boundary = "----apiclient-" + UUID.randomUUID().toString();
 
-    private static final String LINE_FEED = "\r\n";
+    private static String resultsArray = "ParsedResults";
+
 
     private String mApiKey;
     private boolean isOverlayRequired = false;
@@ -43,13 +48,17 @@ public class OCRAsyncTask extends AsyncTask {
     private Activity mActivity;
     private ProgressDialog mProgressDialog;
     private IOCRCallBack mIOCRCallBack;
-    public OCRAsyncTask(Activity activity, String apiKey, boolean isOverlayRequired, File imageUrl, String language, IOCRCallBack iOCRCallBack) {
+    private String field;
+
+    public OCRAsyncTask(Activity activity, String apiKey, boolean isOverlayRequired,
+                        File imageUrl, String language, String field, IOCRCallBack iOCRCallBack) {
         this.mActivity = activity;
         this.mApiKey = apiKey;
         this.isOverlayRequired = isOverlayRequired;
         this.mImageUrl = imageUrl;
         this.mLanguage = language;
         this.mIOCRCallBack = iOCRCallBack;
+        this.field = field;
     }
 
     @Override
@@ -110,7 +119,6 @@ public class OCRAsyncTask extends AsyncTask {
         dataOutputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
         dataOutputStream.flush();
 
-
         dataOutputStream.close();
 
         Log.d("OCR ASYNC", "sent request, watinng for respose");
@@ -155,9 +163,32 @@ public class OCRAsyncTask extends AsyncTask {
         super.onPostExecute(result);
         if (mProgressDialog != null && mProgressDialog.isShowing())
             mProgressDialog.dismiss();
-        String response = (String) result;
-        mIOCRCallBack.getOCRCallBackResult(response);
-        Log.d(TAG, response.toString());
+        String response = extractResultFromResponse(result);
+        mIOCRCallBack.getOCRCallBackResult(field, response);
+        Log.d(TAG, "Got result on field " + field);
+        Log.d(TAG, response);
+    }
+
+    private String extractResultFromResponse(Object result)  {
+        String resObj = (String)result;
+        String res;
+        try {
+
+
+            JSONObject object = new JSONObject(resObj);
+            JSONArray array = object.getJSONArray(resultsArray);
+            if (array.length() == 0) {
+                res = "Unrecognized";
+                return res;
+            }
+            JSONObject obj = array.getJSONObject(0);
+            res = obj.getString("ParsedText");
+            res = res.trim();
+            res = res.replace("\r", "").replace("\n", "");
+        } catch (JSONException ex){
+            res = "Unrecognized";
+        }
+        return res;
     }
 
     public String getPostDataString(JSONObject params) throws Exception {

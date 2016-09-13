@@ -29,6 +29,7 @@ public class DocumentField {
     public DocumentField(DocumentFieldRectangle rectangle, boolean isNumber){
         this.rectangle = rectangle;
         this.isNumber = isNumber;
+        this.orientation = Orientation.HORIZONTAL;
     }
 
     public DocumentField(DocumentFieldRectangle rectangle, Orientation orientation, boolean isNumber){
