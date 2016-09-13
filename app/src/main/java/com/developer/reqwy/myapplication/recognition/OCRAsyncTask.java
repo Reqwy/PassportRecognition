@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
@@ -16,13 +15,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -31,6 +28,12 @@ public class OCRAsyncTask extends AsyncTask {
     private static final String TAG = OCRAsyncTask.class.getName();
 
     String url = "https://api.ocr.space/parse/image"; // OCR API Endpoints
+    //String url2 = "https://apifree2.ocr.space/parse/image";
+
+    private final String twoHyphens = "--";
+    private final String lineEnd = "\r\n";
+    private final String boundary = "----apiclient-" + System.currentTimeMillis();
+
     private static final String LINE_FEED = "\r\n";
 
     private String mApiKey;
@@ -40,16 +43,13 @@ public class OCRAsyncTask extends AsyncTask {
     private Activity mActivity;
     private ProgressDialog mProgressDialog;
     private IOCRCallBack mIOCRCallBack;
-    String name;
-
-    public OCRAsyncTask(Activity activity, String apiKey, boolean isOverlayRequired, File imageUrl, String language, String name, IOCRCallBack iOCRCallBack) {
+    public OCRAsyncTask(Activity activity, String apiKey, boolean isOverlayRequired, File imageUrl, String language, IOCRCallBack iOCRCallBack) {
         this.mActivity = activity;
         this.mApiKey = apiKey;
         this.isOverlayRequired = isOverlayRequired;
         this.mImageUrl = imageUrl;
         this.mLanguage = language;
         this.mIOCRCallBack = iOCRCallBack;
-        this.name = name;
     }
 
     @Override
@@ -64,49 +64,30 @@ public class OCRAsyncTask extends AsyncTask {
 
     @Override
     protected String doInBackground(Object[] params) {
-
         try {
-            return sendPost(mApiKey, isOverlayRequired, mImageUrl, mLanguage);
-
+            return requsetWithDosOnly(mApiKey, isOverlayRequired, mImageUrl, mLanguage);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
-    private String sendPost(String apiKey, boolean isOverlayRequired, File image, String language) throws Exception {
-
+    private String requsetWithDosOnly(String apiKey, boolean isOverlayRequired, File image, String language) throws Exception {
         URL obj = new URL(url); // OCR API Endpoints
         HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 
-        //add request header
         con.setRequestMethod("POST");
         con.setRequestProperty("User-Agent", "Mozilla/5.0");
-        con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-
-        JSONObject postDataParams = new JSONObject();
-
-
-        postDataParams.put("apikey", apiKey);
-        postDataParams.put("isOverlayRequired", isOverlayRequired);
-
-//        JSONObject object = new JSONObject();
-//        JSONArray array = new JSONArray(bytes);
-//        object.put("file", array);
-
-
-        //postDataParams.put("file", JSONObject.wrap(bytes));
-//        postDataParams.put("url", "http://dl.a9t9.com/blog/ocr-online/screenshot.jpg");
-        postDataParams.put("language", language);
-//        con.setRequestProperty("Content-Length", String.valueOf(bytes.length));
-        // Send post request
-        String fileName = image.getName();
-        con.setRequestProperty("Content-Type",
-                "multipart/form-data;");
+        con.setRequestProperty("Accept-Language", "ru;q=0.5");
+        con.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
         con.setDoOutput(true);
         con.setDoInput(true);
 
+
+        Map<String, String> params = new HashMap<>();
+        params.put("apikey", apiKey);
+        params.put("isOverlayRequired", String.valueOf(isOverlayRequired));
+        params.put("language", language);
         int size = (int) image.length();
         byte[] bytes = new byte[size];
         try {
@@ -118,35 +99,20 @@ public class OCRAsyncTask extends AsyncTask {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         DataOutputStream dataOutputStream = new DataOutputStream(con.getOutputStream());
-        dataOutputStream.writeBytes(getPostDataString(postDataParams));
-        PrintWriter writer = new PrintWriter(new OutputStreamWriter(dataOutputStream, Charset.defaultCharset()),
-                true);
-        writer.append(LINE_FEED);
-//        dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"" +
-//                "name" + "\"; filename=\"" + image.getName() + "\"" + "\r\n");
-//        dataOutputStream.writeBytes("ContentType: image/jpeg" + "\r\n");
-//        dataOutputStream.writeBytes("\r\n");
-//        dataOutputStream.write(bytes, 0 , bytes.length);
-//        dataOutputStream.writeBytes("\r\n");
-        writer.append(
-                "Content-Disposition: form-data; name=\"" + "file"
-                        + "\"; filename=\"" + fileName + "\"")
-                .append(LINE_FEED);
-        writer.append(
-                "Content-Type: "
-                        + URLConnection.guessContentTypeFromName(fileName))
-                .append(LINE_FEED);
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            buildTextPart(dataOutputStream, entry.getKey(), entry.getValue());
+        }
 
-        writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
-        writer.append(LINE_FEED);
-        writer.flush();
-        dataOutputStream.write(bytes, 0, bytes.length);
+        buildDataPart(dataOutputStream, bytes, image.getName());
 
+        dataOutputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
         dataOutputStream.flush();
-        writer.append(LINE_FEED);
-        writer.flush();
+
+
         dataOutputStream.close();
+
         Log.d("OCR ASYNC", "sent request, watinng for respose");
 
         BufferedReader in;
@@ -164,11 +130,26 @@ public class OCRAsyncTask extends AsyncTask {
             response.append(inputLine);
         }
         in.close();
-
-        //return result
         return String.valueOf(response);
     }
+    private void buildTextPart(DataOutputStream dataOutputStream, String parameterName, String parameterValue) throws IOException {
+        dataOutputStream.writeBytes(twoHyphens + boundary + lineEnd);
+        dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"" + parameterName + "\"" + lineEnd);
+        //dataOutputStream.writeBytes("Content-Type: text/plain; charset=UTF-8" + lineEnd);
+        dataOutputStream.writeBytes(lineEnd);
+        dataOutputStream.writeBytes(parameterValue + lineEnd);
+    }
 
+    private void buildDataPart(DataOutputStream dataOutputStream, byte[] bytes, String inputName) throws IOException {
+        dataOutputStream.writeBytes(twoHyphens + boundary + lineEnd);
+        dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"" +
+                "file" + "\"; filename=\"" + inputName + "\"" + lineEnd);
+        dataOutputStream.writeBytes("Content-Type: " + "image/jpeg" + lineEnd);
+        dataOutputStream.writeBytes(lineEnd);
+        dataOutputStream.write(bytes, 0, bytes.length);
+
+        dataOutputStream.writeBytes(lineEnd);
+    }
     @Override
     protected void onPostExecute(Object result) {
         super.onPostExecute(result);

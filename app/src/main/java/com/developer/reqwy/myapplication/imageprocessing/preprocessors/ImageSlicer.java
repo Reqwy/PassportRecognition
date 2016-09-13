@@ -13,6 +13,7 @@ import com.developer.reqwy.myapplication.document_templates.DocumentFieldRectang
 import com.developer.reqwy.myapplication.document_templates.DocumentTemplate;
 import com.developer.reqwy.myapplication.document_templates.DocumentType;
 import com.developer.reqwy.myapplication.document_templates.TemplateFactory;
+import com.developer.reqwy.myapplication.utils.NameMapper;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -45,7 +46,7 @@ public class ImageSlicer {
             Bitmap bmp = Bitmap.createBitmap(initialImage, dipToPix(rect.leftUp().x), dipToPix(rect.leftUp().y),
                     dipToPix(rect.getWidth()), dipToPix(rect.getHeight()));
             bitmapsForTesseract.put(field, bmp);
-            File mFile = new File(context.getExternalFilesDir(null), field + ".png");
+            File mFile = new File(context.getExternalFilesDir(null), NameMapper.mapFieldToEng(field) + ".png");
             FileOutputStream out = null;
             try {
                 out = new FileOutputStream(mFile);
@@ -75,10 +76,6 @@ public class ImageSlicer {
         return filesForApi;
     }
 
-    public float dipToPixels(float dipValue) {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
-    }
 
     public int dipToPix(int dp){
         float density = context.getResources().getDisplayMetrics().density;
@@ -86,18 +83,4 @@ public class ImageSlicer {
         return (int)tmp;
     }
 
-    public static byte[] int2byte(int[]src) {
-        int srcLength = src.length;
-        byte[]dst = new byte[srcLength << 2];
-
-        for (int i=0; i<srcLength; i++) {
-            int x = src[i];
-            int j = i << 2;
-            dst[j++] = (byte) ((x >>> 0) & 0xff);
-            dst[j++] = (byte) ((x >>> 8) & 0xff);
-            dst[j++] = (byte) ((x >>> 16) & 0xff);
-            dst[j++] = (byte) ((x >>> 24) & 0xff);
-        }
-        return dst;
-    }
 }

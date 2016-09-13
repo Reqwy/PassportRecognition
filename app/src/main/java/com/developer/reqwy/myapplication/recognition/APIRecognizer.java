@@ -23,7 +23,7 @@ public class APIRecognizer implements Recognizer {
     public Map<String, String> recognize() {
 //        for (String field: files.keySet()) {
             File f = files.get("Имя");
-            OCRAsyncTask oCRAsyncTask = new OCRAsyncTask(context, API_KEY, false, f, language, "Имя",
+            OCRAsyncTask oCRAsyncTask = new OCRAsyncTask(context, API_KEY, false, f, language,
                     new IOCRCallBack() {
                         @Override
                         public void getOCRCallBackResult(String response) {
