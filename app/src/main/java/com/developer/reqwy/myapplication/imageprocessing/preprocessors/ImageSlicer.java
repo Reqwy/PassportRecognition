@@ -4,11 +4,13 @@ package com.developer.reqwy.myapplication.imageprocessing.preprocessors;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.Image;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 
+import com.developer.reqwy.myapplication.document_templates.DocumentField;
 import com.developer.reqwy.myapplication.document_templates.DocumentFieldRectangle;
 import com.developer.reqwy.myapplication.document_templates.DocumentTemplate;
 import com.developer.reqwy.myapplication.document_templates.DocumentType;
@@ -41,10 +43,20 @@ public class ImageSlicer {
         filesForApi = new HashMap<>();
         bitmapsForTesseract = new HashMap<>();
         for (String field :template.getFieldNames()){
-            DocumentFieldRectangle rect = template.getRectangle(field);
+            DocumentField docField = template.getField(field);
+            DocumentFieldRectangle rect = docField.getRectangle();
             // badass shit that can break our lifer
-            Bitmap bmp = Bitmap.createBitmap(initialImage, dipToPix(rect.leftUp().x), dipToPix(rect.leftUp().y),
-                    dipToPix(rect.getWidth()), dipToPix(rect.getHeight()));
+            Bitmap bmp;
+            if (docField.getOrientation().equals(DocumentField.Orientation.HORIZONTAL)) {
+                bmp = Bitmap.createBitmap(initialImage, dipToPix(rect.leftUp().x), dipToPix(rect.leftUp().y),
+                        dipToPix(rect.getWidth()), dipToPix(rect.getHeight()));
+            } else {
+                Bitmap temp = Bitmap.createBitmap(initialImage, dipToPix(rect.leftUp().x), dipToPix(rect.leftUp().y),
+                        dipToPix(rect.getWidth()), dipToPix(rect.getHeight()));
+                Matrix transform = new Matrix();
+                transform.postRotate(90);
+                bmp = Bitmap.createBitmap(temp, 0, 0, temp.getWidth(), temp.getHeight(), transform, true);
+            }
             bitmapsForTesseract.put(field, bmp);
             File mFile = new File(context.getExternalFilesDir(null), NameMapper.mapFieldToEng(field) + ".png");
             FileOutputStream out = null;

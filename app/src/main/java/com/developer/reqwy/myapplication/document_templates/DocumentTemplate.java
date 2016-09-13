@@ -8,10 +8,10 @@ import java.util.Set;
 
 public abstract class DocumentTemplate {
 
-    protected Map<String, DocumentFieldRectangle> fields = new HashMap();
+    protected Map<String, DocumentField> fields = new HashMap();
 
 
-    public Map<String, DocumentFieldRectangle> getFields(){
+    public Map<String, DocumentField> getFields(){
         return fields;
     }
 
@@ -19,7 +19,7 @@ public abstract class DocumentTemplate {
         return fields.keySet();
     }
 
-    public DocumentFieldRectangle getRectangle(String fieldName){
+    public DocumentField getField(String fieldName){
         return fields.get(fieldName);
     }
 
