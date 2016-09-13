@@ -173,9 +173,8 @@ public class TesseractProcessing implements Recognizer {
     }
 
     @Override
-    public Map<String, String> recognize() {
+    public void recognize() {
         prepareTesseract();
         startOCR();
-        return null;
     }
 }

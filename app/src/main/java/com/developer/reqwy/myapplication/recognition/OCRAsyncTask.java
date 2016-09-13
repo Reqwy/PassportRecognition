@@ -22,7 +22,6 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -45,14 +44,11 @@ public class OCRAsyncTask extends AsyncTask {
     private boolean isOverlayRequired = false;
     private File mImageUrl;
     private String mLanguage;
-    private Activity mActivity;
-    private ProgressDialog mProgressDialog;
     private IOCRCallBack mIOCRCallBack;
     private String field;
 
-    public OCRAsyncTask(Activity activity, String apiKey, boolean isOverlayRequired,
+    public OCRAsyncTask(String apiKey, boolean isOverlayRequired,
                         File imageUrl, String language, String field, IOCRCallBack iOCRCallBack) {
-        this.mActivity = activity;
         this.mApiKey = apiKey;
         this.isOverlayRequired = isOverlayRequired;
         this.mImageUrl = imageUrl;
@@ -61,15 +57,6 @@ public class OCRAsyncTask extends AsyncTask {
         this.field = field;
     }
 
-    @Override
-    protected void onPreExecute() {
-        mProgressDialog = new ProgressDialog(mActivity);
-        mProgressDialog.setTitle("Wait while processing....");
-        mProgressDialog.setCanceledOnTouchOutside(false);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.show();
-        super.onPreExecute();
-    }
 
     @Override
     protected String doInBackground(Object[] params) {
@@ -161,21 +148,22 @@ public class OCRAsyncTask extends AsyncTask {
     @Override
     protected void onPostExecute(Object result) {
         super.onPostExecute(result);
-        if (mProgressDialog != null && mProgressDialog.isShowing())
-            mProgressDialog.dismiss();
         String response = extractResultFromResponse(result);
-        mIOCRCallBack.getOCRCallBackResult(field, response);
         Log.d(TAG, "Got result on field " + field);
         Log.d(TAG, response);
+        mIOCRCallBack.getOCRCallBackResult(field, response);
     }
 
     private String extractResultFromResponse(Object result)  {
         String resObj = (String)result;
         String res;
         try {
-
-
             JSONObject object = new JSONObject(resObj);
+            Object nullCheck = object.get(resultsArray);
+            if (nullCheck == null){
+                res = "Unrecognized";
+                return res;
+            }
             JSONArray array = object.getJSONArray(resultsArray);
             if (array.length() == 0) {
                 res = "Unrecognized";
@@ -185,6 +173,9 @@ public class OCRAsyncTask extends AsyncTask {
             res = obj.getString("ParsedText");
             res = res.trim();
             res = res.replace("\r", "").replace("\n", "");
+            if (res.isEmpty()){
+                res = "Unrecognized";
+            }
         } catch (JSONException ex){
             res = "Unrecognized";
         }

@@ -270,6 +270,7 @@ public class Camera2BasicFragment extends Fragment
                 }
                 alreadyProcessed = true;
                 mBackgroundHandler.post(new ImagePreProcessor(bitmapToProcess, land, DocumentType.PASSPORT, getActivity()));
+
             }
         }
 

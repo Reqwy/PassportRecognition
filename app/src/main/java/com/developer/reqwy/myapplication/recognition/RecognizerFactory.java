@@ -22,9 +22,9 @@ public class RecognizerFactory {
         this.template = template;
     }
 
-    public Recognizer getRecognizer(){
+    public Recognizer getRecognizer(RecognizerCallBack callBack){
         if (checkInternetConnection()){
-            return new APIRecognizer((Activity) context, slicer.getFilesForApi(), template);
+            return new APIRecognizer((Activity) context, slicer.getFilesForApi(), template, callBack);
         } else {
             return new TesseractProcessing(context, slicer.getBitmapsForTesseract(), template);
         }

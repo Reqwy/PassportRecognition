@@ -5,13 +5,13 @@ import android.graphics.Bitmap;
 
 import com.developer.reqwy.myapplication.document_templates.DocumentType;
 import com.developer.reqwy.myapplication.document_templates.TemplateFactory;
+import com.developer.reqwy.myapplication.recognition.RecognizerCallBack;
 import com.developer.reqwy.myapplication.recognition.RecognizerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.List;
+import java.util.Map;
 
 public class ImagePreProcessor implements Runnable {
 
@@ -20,6 +20,17 @@ public class ImagePreProcessor implements Runnable {
     private boolean land;
     private DocumentType docType;
     private Context context;
+    private RecognizerCallBack callBack = new RecognizerCallBack() {
+        @Override
+        public void onRecognitionFinished(Map<String, String> document) {
+
+            publishRecognitionResults(document);
+        }
+    };
+
+    public void publishRecognitionResults(Map<String, String> document){
+
+    }
 
     public ImagePreProcessor(Bitmap imageToProcess,
                              boolean land_orientation,
@@ -41,7 +52,7 @@ public class ImagePreProcessor implements Runnable {
         slicer.slice(docType, land);
         RecognizerFactory factory
                 = new RecognizerFactory(context, slicer, TemplateFactory.getTemplate(docType, land));
-        factory.getRecognizer().recognize();
+        factory.getRecognizer(callBack).recognize();
     }
 
     public void saveInitial() {
