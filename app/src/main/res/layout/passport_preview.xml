@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/surnameField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Фамилия"/>
+    <EditText
+        android:id="@+id/surnameEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Surname"
+        android:textSize="12sp"
+        android:layout_toRightOf="@id/surnameField"
+        />
+
+    <TextView
+        android:id="@+id/nameField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/surnameEdit"
+        android:text="Имя"/>
+    <EditText
+        android:id="@+id/nameEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="NAME"
+        android:textSize="12sp"
+        android:layout_below="@id/surnameEdit"
+        android:layout_toRightOf="@id/nameField"
+        />
+
+    <TextView
+        android:id="@+id/fatherNameField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/nameEdit"
+        android:text="Отчество"/>
+    <EditText
+        android:id="@+id/fatherNameEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="FatherName"
+        android:textSize="12sp"
+        android:layout_below="@id/nameEdit"
+        android:layout_toRightOf="@id/fatherNameField"
+        />
+
+    <TextView
+        android:id="@+id/genderField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/fatherNameEdit"
+        android:text="Пол"/>
+    <EditText
+        android:id="@+id/genderEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Sex"
+        android:textSize="12sp"
+        android:layout_below="@id/fatherNameEdit"
+        android:layout_toRightOf="@id/genderField"
+        />
+    <TextView
+        android:id="@+id/birthdayDateField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/genderEdit"
+        android:layout_below="@id/fatherNameEdit"
+        android:text="Дата рождения"/>
+    <EditText
+        android:id="@+id/birthdayDayEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Date"
+        android:textSize="12sp"
+        android:layout_below="@id/fatherNameEdit"
+        android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@id/birthdayDateField"
+        />
+    <TextView
+        android:id="@+id/placeOfBirthField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/genderEdit"
+        android:text="Место рождения"/>
+    <EditText
+        android:id="@+id/placeOfBirthEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="PlaceOfBirth"
+        android:textSize="12sp"
+        android:layout_below="@id/genderEdit"
+        android:layout_toRightOf="@id/placeOfBirthField"
+        />
+
+    <TextView
+        android:id="@+id/numberField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/placeOfBirthEdit"
+        android:text="Серия / номер"/>
+    <EditText
+        android:id="@+id/numberEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="№ of document"
+        android:textSize="12sp"
+        android:layout_below="@id/placeOfBirthEdit"
+        android:layout_toRightOf="@id/numberField"
+        />
+
+    <Button
+        android:id="@+id/cancelButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:layout_alignParentBottom="true"/>
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:layout_above="@id/cancelButton"/>
+</RelativeLayout>
