@@ -29,6 +29,12 @@
             android:label="@string/app_name">
 
         </activity>
+        <activity
+            android:name=".PreviewActivity"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AppCompat">
+
+        </activity>
     </application>
 
 </manifest>

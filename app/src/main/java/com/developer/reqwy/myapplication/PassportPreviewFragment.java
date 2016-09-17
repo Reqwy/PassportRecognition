@@ -16,6 +16,7 @@ import android.widget.EditText;
 import com.developer.reqwy.myapplication.document_templates.DocumentTemplate;
 import com.developer.reqwy.myapplication.document_templates.DocumentType;
 import com.developer.reqwy.myapplication.document_templates.TemplateFactory;
+import com.developer.reqwy.myapplication.persistence.DocumentDBHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,7 +61,15 @@ public class PassportPreviewFragment extends Fragment{
         gender = (EditText)v.findViewById(R.id.genderEdit);
         dateOfBirth = (EditText)v.findViewById(R.id.birthdayDayEdit);
         placeOfBirth = (EditText)v.findViewById(R.id.placeOfBirthEdit);
-        number = (EditText)v.findViewById(R.id.placeOfBirthEdit);
+        number = (EditText)v.findViewById(R.id.numberEdit);
+
+        surname.setText(passport.get("Фамилия"));
+        name.setText(passport.get("Имя"));
+        fatherName.setText(passport.get("Отчество"));
+        gender.setText(passport.get("Пол"));
+        dateOfBirth.setText(passport.get("Дата рождения"));
+        placeOfBirth.setText(passport.get("Место рождения"));
+        number.setText(passport.get("Номер"));
 
         save = (Button) v.findViewById(R.id.saveButton);
         cancel = (Button) v.findViewById(R.id.cancelButton);
@@ -186,7 +195,10 @@ public class PassportPreviewFragment extends Fragment{
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // DEEEP DATABASE
+                DocumentDBHelper helper = new DocumentDBHelper(getActivity());
+                helper.savePassport(passport);
+                getActivity().setResult(Activity.RESULT_OK);
+                getActivity().finish();
             }
         });
 

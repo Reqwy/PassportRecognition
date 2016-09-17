@@ -1,10 +1,10 @@
 package com.developer.reqwy.myapplication;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Menu;
@@ -31,12 +31,12 @@ public class  MainActivity extends AppCompatActivity {
         });
 
 
-        FragmentManager fm = getSupportFragmentManager();
+        FragmentManager fm = getFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.doc_list_fragment);
 
         if (fragment==null){
             fragment = new DocumentListFragment();
-            fm.beginTransaction().add(R.id.doc_list_fragment, fragment).commit();
+            fm.beginTransaction().replace(R.id.doc_list_fragment, fragment).commit();
         }
         switch(OrientationUtils.getScreenOrientation(this)){
             case "A": {
@@ -45,10 +45,12 @@ public class  MainActivity extends AppCompatActivity {
                     fragment = new DocumentFragment();
                     fm.beginTransaction().add(R.id.representation_fragment_container, fragment).commit();
                 }
+                break;
             }
             default:break;
         }
     }
+
 
 
     private void startCameraActivity(){

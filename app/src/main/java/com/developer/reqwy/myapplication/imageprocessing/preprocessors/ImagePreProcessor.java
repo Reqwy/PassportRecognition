@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.developer.reqwy.myapplication.PreviewActivity;
 import com.developer.reqwy.myapplication.document_templates.DocumentType;
@@ -34,23 +35,34 @@ public class ImagePreProcessor implements Runnable {
     private RecognizerCallBack callBack = new RecognizerCallBack() {
         private  boolean correctionRun = false;
         Map<String, String> tempDocument;
+        private boolean debug = true;
 
         @Override
         public void onRecognitionFinished(Map<String, String> document) {
-            if (!correctionRun) {
-                if (containsUnrecognized(document)) {
-                    correctionRun = true;
-                    tempDocument = document;
-                    factory.getTesseractRecognizer(callBack).correctionRecognition(document);
-                } else {
-                    publishRecognitionResults(document);
-                }
+
+            if (debug) {
+                publishRecognitionResults(document);
             } else {
-                for (String key : document.keySet()){
-                    tempDocument.remove(key);
-                    tempDocument.put(key, document.get(key));
+
+                Log.d("Processing", "Recognition finished");
+                if (!correctionRun) {
+                    if (containsUnrecognized(document)) {
+                        Log.d("Processing", "Some troubles. Starting Correction run");
+                        correctionRun = true;
+                        tempDocument = document;
+                        factory.getTesseractRecognizer(callBack).correctionRecognition(document);
+                    } else {
+                        Log.d("Processing", "publishing");
+                        publishRecognitionResults(document);
+                    }
+                } else {
+                    Log.d("Processing", "Correction finished");
+                    for (String key : document.keySet()) {
+                        tempDocument.remove(key);
+                        tempDocument.put(key, document.get(key));
+                    }
+                    publishRecognitionResults(tempDocument);
                 }
-                publishRecognitionResults(tempDocument);
             }
         }
 
@@ -73,6 +85,7 @@ public class ImagePreProcessor implements Runnable {
 
 
     public void publishRecognitionResults(Map<String, String> document){
+        Log.d("Processing", "In publishing.");
         Intent i = new Intent(context, PreviewActivity.class);
         serializeDocToIntent(i, document);
         ((Activity)context).startActivityForResult(i, requestCode);
