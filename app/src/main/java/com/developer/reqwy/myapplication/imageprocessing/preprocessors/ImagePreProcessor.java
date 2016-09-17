@@ -1,8 +1,11 @@
 package com.developer.reqwy.myapplication.imageprocessing.preprocessors;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 
+import com.developer.reqwy.myapplication.PreviewActivity;
 import com.developer.reqwy.myapplication.document_templates.DocumentType;
 import com.developer.reqwy.myapplication.document_templates.PassportTemplate;
 import com.developer.reqwy.myapplication.document_templates.TemplateFactory;
@@ -22,6 +25,11 @@ public class ImagePreProcessor implements Runnable {
     private DocumentType docType;
     private Context context;
     private RecognizerFactory factory;
+
+    public static final String request = "GET_YOUR_RESULTS";
+    public static final int requestCode = 777;
+
+    public static final String DOCTYPE_EXTRA = "DOC_TYPE_EXTRA";
 
     private RecognizerCallBack callBack = new RecognizerCallBack() {
         private  boolean correctionRun = false;
@@ -56,9 +64,18 @@ public class ImagePreProcessor implements Runnable {
         }
     };
 
+    private void serializeDocToIntent(Intent i, Map<String, String> doc){
+        i.putExtra(DOCTYPE_EXTRA, docType.name());
+        for (String s : doc.keySet()){
+            i.putExtra(s, doc.get(s));
+        }
+    }
+
+
     public void publishRecognitionResults(Map<String, String> document){
-
-
+        Intent i = new Intent(context, PreviewActivity.class);
+        serializeDocToIntent(i, document);
+        ((Activity)context).startActivityForResult(i, requestCode);
     }
 
     public ImagePreProcessor(Bitmap imageToProcess,
