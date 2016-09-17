@@ -1,5 +1,6 @@
 package com.developer.reqwy.myapplication.recognition;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -14,7 +15,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class TesseractProcessing implements Recognizer {
@@ -26,15 +30,19 @@ public class TesseractProcessing implements Recognizer {
     private static final String lang = "rus";
     private Map<String, Bitmap> images;
     private DocumentTemplate template;
+    private ProgressDialog mProgressDialog;
+    private RecognizerCallBack resultCallback;
 
     private static  String DATA_PATH;
     private static final String TESSDATA = "tessdata";
+    private  Map<String, String> results = new ConcurrentHashMap<>();
 
-    public TesseractProcessing(Context context, Map<String, Bitmap> imageMap, DocumentTemplate template){
+    public TesseractProcessing(Context context, Map<String, Bitmap> imageMap, DocumentTemplate template, RecognizerCallBack callback){
         processingContext = context;
         this.template = template;
         this.images = imageMap;
         DATA_PATH = context.getExternalFilesDir(null).toString() + "/TesseractSample/";
+        resultCallback = callback;
     }
 
     /**
@@ -102,16 +110,46 @@ public class TesseractProcessing implements Recognizer {
         }
     }
 
+    public void onPartialResult(String field, String response){
+        results.put(field, response);
+        mProgressDialog.incrementProgressBy(1);
+    }
+
+    private void finish(){
+        if (mProgressDialog != null && mProgressDialog.isShowing())
+            mProgressDialog.dismiss();
+        resultCallback.onRecognitionFinished(results);
+    }
+
+
     private void startOCR() {
-        String result = "";
+        initProgressBar("Документ распознаётся...", images.keySet().size());
         try {
             for (String field: images.keySet()) {
-                result += field + ": " + extractText(field, images.get(field)) + "\n";
+                String recognition = extractText(field, images.get(field));
+                onPartialResult(field, recognition);
             }
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
-        Log.d("Tesseract_OCR_result", result);
+        finish();
+    }
+
+    private void startCorrection(Map<String, Bitmap> images) {
+        if (results.size() > 0){
+            results = new ConcurrentHashMap<>();
+        }
+        initProgressBar("Небольшая коррекция...", images.keySet().size());
+        String result = "";
+        try {
+            for (String field: images.keySet()) {
+                String recognition = extractText(field, images.get(field));
+                onPartialResult(field, recognition);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
+        finish();
     }
 
 
@@ -172,9 +210,30 @@ public class TesseractProcessing implements Recognizer {
 
     }
 
+    private void initProgressBar(String text, int size){
+        mProgressDialog = new ProgressDialog(processingContext);
+        mProgressDialog.setTitle(text);
+        mProgressDialog.setCanceledOnTouchOutside(false);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        mProgressDialog.setMax(size);
+        mProgressDialog.show();
+
+    }
+
     @Override
     public void recognize() {
         prepareTesseract();
         startOCR();
+    }
+
+    public void correctionRecognition(Map<String, String> document){
+        prepareTesseract();
+        Set<String> unrecognizedKeys = document.keySet();
+        Map<String, Bitmap> newImages = new HashMap<>();
+        for (String key : unrecognizedKeys){
+            newImages.put(key, images.get(key));
+        }
+        startCorrection(newImages);
     }
 }

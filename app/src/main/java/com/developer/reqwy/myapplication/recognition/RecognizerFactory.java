@@ -14,6 +14,8 @@ public class RecognizerFactory {
     private Context context;
     private ImageSlicer slicer;
     private DocumentTemplate template;
+    boolean lastProcessingWasInternet = false;
+
 
     public RecognizerFactory(Context context, ImageSlicer slicer,
                              DocumentTemplate template){
@@ -24,10 +26,16 @@ public class RecognizerFactory {
 
     public Recognizer getRecognizer(RecognizerCallBack callBack){
         if (checkInternetConnection()){
+            lastProcessingWasInternet = true;
             return new APIRecognizer((Activity) context, slicer.getFilesForApi(), template, callBack);
         } else {
-            return new TesseractProcessing(context, slicer.getBitmapsForTesseract(), template);
+            lastProcessingWasInternet = false;
+            return new TesseractProcessing(context, slicer.getBitmapsForTesseract(), template, callBack);
         }
+    }
+
+    public TesseractProcessing getTesseractRecognizer(RecognizerCallBack callBack){
+        return new TesseractProcessing(context, slicer.getBitmapsForTesseract(), template, callBack);
     }
 
     private boolean checkInternetConnection(){

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.developer.reqwy.myapplication.document_templates.DocumentType;
+import com.developer.reqwy.myapplication.document_templates.PassportTemplate;
 import com.developer.reqwy.myapplication.document_templates.TemplateFactory;
 import com.developer.reqwy.myapplication.recognition.RecognizerCallBack;
 import com.developer.reqwy.myapplication.recognition.RecognizerFactory;
@@ -20,15 +21,43 @@ public class ImagePreProcessor implements Runnable {
     private boolean land;
     private DocumentType docType;
     private Context context;
+    private RecognizerFactory factory;
+
     private RecognizerCallBack callBack = new RecognizerCallBack() {
+        private  boolean correctionRun = false;
+        Map<String, String> tempDocument;
+
         @Override
         public void onRecognitionFinished(Map<String, String> document) {
+            if (!correctionRun) {
+                if (containsUnrecognized(document)) {
+                    correctionRun = true;
+                    tempDocument = document;
+                    factory.getTesseractRecognizer(callBack).correctionRecognition(document);
+                } else {
+                    publishRecognitionResults(document);
+                }
+            } else {
+                for (String key : document.keySet()){
+                    tempDocument.remove(key);
+                    tempDocument.put(key, document.get(key));
+                }
+                publishRecognitionResults(tempDocument);
+            }
+        }
 
-            publishRecognitionResults(document);
+        public boolean containsUnrecognized(Map<String, String> document){
+            for (String key : document.keySet()){
+                if (document.get(key).equals("Unrecognized")){
+                    return true;
+                }
+            }
+            return false;
         }
     };
 
     public void publishRecognitionResults(Map<String, String> document){
+
 
     }
 
@@ -50,7 +79,7 @@ public class ImagePreProcessor implements Runnable {
         saveInitial();
         slicer = new ImageSlicer(context, image);
         slicer.slice(docType, land);
-        RecognizerFactory factory
+        factory
                 = new RecognizerFactory(context, slicer, TemplateFactory.getTemplate(docType, land));
         factory.getRecognizer(callBack).recognize();
     }
