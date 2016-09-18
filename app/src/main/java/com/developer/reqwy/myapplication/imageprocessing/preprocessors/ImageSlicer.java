@@ -38,6 +38,15 @@ public class ImageSlicer {
     private Map<String, File> filesForApi;
     private Map<String, Bitmap> bitmapsForTesseract;
 
+    private Bitmap preprocess(Bitmap src){
+        Log.d("SLICER", "preprocessingImage");
+        Bitmap result = ProcessingOperations.applyGreyscale(src);
+        result = ProcessingOperations.applyGaussianBlur(result);
+        result = ProcessingOperations.applyGaussianBlur(result);
+        Log.d("SLICER", "GAUS DONE");
+        return result;
+    }
+
     public void slice(DocumentType doctype, boolean land){
         DocumentTemplate template = TemplateFactory.getTemplate(doctype, land);
         filesForApi = new HashMap<>();
@@ -57,6 +66,7 @@ public class ImageSlicer {
                 transform.postRotate(-90);
                 bmp = Bitmap.createBitmap(temp, 0, 0, temp.getWidth(), temp.getHeight(), transform, true);
             }
+            //bmp = preprocess(bmp);
             bitmapsForTesseract.put(field, bmp);
             File mFile = new File(context.getExternalFilesDir(null), NameMapper.mapFieldToEng(field) + ".png");
             FileOutputStream out = null;

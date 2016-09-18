@@ -52,7 +52,7 @@ public class APIRecognizer implements Recognizer {
 
         private void finish(){
             if (mProgressDialog != null && mProgressDialog.isShowing())
-                mProgressDialog.dismiss();
+                 mProgressDialog.dismiss();
             resultcallBack.onRecognitionFinished(results);
         }
     };

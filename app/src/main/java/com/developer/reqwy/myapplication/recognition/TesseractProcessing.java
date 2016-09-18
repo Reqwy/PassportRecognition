@@ -124,6 +124,7 @@ public class TesseractProcessing implements Recognizer {
 
     private void startOCR() {
         initProgressBar("Документ распознаётся...", images.keySet().size());
+        iniTessAPI();
         try {
             for (String field: images.keySet()) {
                 String recognition = extractText(field, images.get(field));
@@ -141,6 +142,7 @@ public class TesseractProcessing implements Recognizer {
         }
         initProgressBar("Небольшая коррекция...", images.keySet().size());
         String result = "";
+        iniTessAPI();
         try {
             for (String field: images.keySet()) {
                 String recognition = extractText(field, images.get(field));
@@ -152,8 +154,7 @@ public class TesseractProcessing implements Recognizer {
         finish();
     }
 
-
-    private String extractText(String field, Bitmap bitmap) {
+    private void iniTessAPI(){
         try {
             tessBaseApi = new TessBaseAPI();
         } catch (Exception e) {
@@ -162,6 +163,12 @@ public class TesseractProcessing implements Recognizer {
                 Log.e(TAG, "TessBaseAPI is null. TessFactory not returning tess object.");
             }
         }
+    }
+
+
+    private String extractText(String field, Bitmap bitmap) {
+
+
 
         File f = new File(DATA_PATH);
         if (!f.exists()){
