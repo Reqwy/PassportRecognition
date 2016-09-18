@@ -37,7 +37,7 @@ public class ImagePreProcessor implements Runnable {
     private RecognizerCallBack callBack = new RecognizerCallBack() {
         private  boolean correctionRun = false;
         Map<String, String> tempDocument;
-        private boolean debug = false;
+        private boolean debug = true;
 
         @Override
         public void onRecognitionFinished(Map<String, String> document) {
