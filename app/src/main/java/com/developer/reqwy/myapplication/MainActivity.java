@@ -1,5 +1,6 @@
 package com.developer.reqwy.myapplication;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.developer.reqwy.myapplication.utils.OrientationUtils;
 
@@ -48,6 +50,40 @@ public class  MainActivity extends AppCompatActivity {
                 break;
             }
             default:break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (resultCode){
+            case Activity.RESULT_OK: {
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this,
+                                "Новый документ успешно сохранён.",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+                break;
+            }
+            case Activity.RESULT_CANCELED: {
+                break;
+            }
+            case 500: {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this,
+                                "При сохранении документа произошла ошибка. Попробуйте распознать его ещё раз",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            default:
+                break;
         }
     }
 

@@ -24,6 +24,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -375,6 +376,20 @@ public class Camera2BasicFragment extends Fragment
         }
 
     };
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        getActivity().setResult(resultCode, data);
+        if (mCameraOpenCloseLock != null) {
+            mCameraOpenCloseLock.release();
+        }
+        if (mCameraDevice != null) {
+            mCameraDevice.close();
+            mCameraDevice = null;
+        }
+        getActivity().finish();
+    }
 
     /**
      * Shows a {@link Toast} on the UI thread.

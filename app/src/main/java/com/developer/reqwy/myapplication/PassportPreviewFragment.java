@@ -16,6 +16,7 @@ import android.widget.EditText;
 import com.developer.reqwy.myapplication.document_templates.DocumentTemplate;
 import com.developer.reqwy.myapplication.document_templates.DocumentType;
 import com.developer.reqwy.myapplication.document_templates.TemplateFactory;
+import com.developer.reqwy.myapplication.imageprocessing.preprocessors.ImagePreProcessor;
 import com.developer.reqwy.myapplication.persistence.DocumentDBHelper;
 
 import java.util.HashMap;
@@ -52,6 +53,15 @@ public class PassportPreviewFragment extends Fragment{
             doc.put(s, i.getStringExtra(s));
         }
         return  doc;
+    }
+
+    private Intent prepareResultIntent(){
+        Intent i = new Intent(getActivity(), MainActivity.class);
+        i.putExtra(ImagePreProcessor.DOCTYPE_EXTRA, DocumentType.PASSPORT.name());
+        for (String s : passport.keySet()){
+            i.putExtra(s, passport.get(s));
+        }
+        return i;
     }
 
     private void initialiseInterfaceWithData(View v) {
@@ -196,9 +206,15 @@ public class PassportPreviewFragment extends Fragment{
             @Override
             public void onClick(View view) {
                 DocumentDBHelper helper = new DocumentDBHelper(getActivity());
-                helper.savePassport(passport);
-                getActivity().setResult(Activity.RESULT_OK);
-                getActivity().finish();
+                long code = helper.savePassport(passport);
+                if (code != -1) {
+                    Intent data = prepareResultIntent();
+                    getActivity().setResult(Activity.RESULT_OK, data);
+                    getActivity().finish();
+                } else {
+                    getActivity().setResult(500);
+                    getActivity().finish();
+                }
             }
         });
 
