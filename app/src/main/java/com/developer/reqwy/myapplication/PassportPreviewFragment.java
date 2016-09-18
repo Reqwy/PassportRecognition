@@ -207,6 +207,7 @@ public class PassportPreviewFragment extends Fragment{
             public void onClick(View view) {
                 DocumentDBHelper helper = new DocumentDBHelper(getActivity());
                 long code = helper.savePassport(passport);
+
                 if (code != -1) {
                     Intent data = prepareResultIntent();
                     getActivity().setResult(Activity.RESULT_OK, data);

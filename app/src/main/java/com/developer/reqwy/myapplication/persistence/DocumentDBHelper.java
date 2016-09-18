@@ -7,10 +7,13 @@ import android.database.CursorWrapper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.developer.reqwy.myapplication.base.Passport;
+
 import org.intellij.lang.annotations.Language;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 
 public class DocumentDBHelper extends SQLiteOpenHelper {
@@ -78,6 +81,19 @@ public class DocumentDBHelper extends SQLiteOpenHelper {
 
     }
 
+    public long savePassport(Passport passport){
+        ContentValues cv = new ContentValues();
+        cv.put(PASSPORTCOLUMNS.SURNAME.colName(), passport.getSurname());
+        cv.put(PASSPORTCOLUMNS.NAME.colName(), passport.getName());
+        cv.put(PASSPORTCOLUMNS.FATHERNAME.colName(), passport.getFatherName());
+        cv.put(PASSPORTCOLUMNS.GENDER.colName(), passport.getGender());
+        cv.put(PASSPORTCOLUMNS.BD_DATE.colName(), passport.getBirthdayDate());
+        cv.put(PASSPORTCOLUMNS.BD_PLACE.colName(), passport.getPlaceOfBirth());
+        cv.put(PASSPORTCOLUMNS.NUMBER.colName(), passport.getNumber());
+        return getWritableDatabase().insert(PASSPORT_TABLE, null, cv);
+
+    }
+
     public PassportCursor queryDocuments() {
         Cursor wrapped = getReadableDatabase().query(PASSPORT_TABLE,
                 null, null, null, null, null, null);
@@ -103,6 +119,23 @@ public class DocumentDBHelper extends SQLiteOpenHelper {
             passport.put("Дата рождения", getString(getColumnIndex(PASSPORTCOLUMNS.BD_DATE.colName())));
             passport.put("Место рождения", getString(getColumnIndex(PASSPORTCOLUMNS.BD_PLACE.colName())));
             passport.put("Номер", getString(getColumnIndex(PASSPORTCOLUMNS.NUMBER.colName())));
+            return passport;
+        }
+
+        @Override
+        public Passport getPassportEntity() {
+            if (isBeforeFirst() || isAfterLast())
+                return null;
+            String name = "receiveFromBase";
+            UUID id = UUID.fromString("00000000-0000-0000-0000-00000000");
+            Passport passport = new Passport(id, name);
+            passport.setSurname(getString(getColumnIndex(PASSPORTCOLUMNS.SURNAME.colName())));
+            passport.setName( getString(getColumnIndex(PASSPORTCOLUMNS.NAME.colName())));
+            passport.setFatherName(getString(getColumnIndex(PASSPORTCOLUMNS.FATHERNAME.colName())));
+            passport.setGender(getString(getColumnIndex(PASSPORTCOLUMNS.GENDER.colName())));
+            passport.setBirthdayDate(getString(getColumnIndex(PASSPORTCOLUMNS.BD_DATE.colName())));
+            passport.setPlaceOfBirth(getString(getColumnIndex(PASSPORTCOLUMNS.BD_PLACE.colName())));
+            passport.setNumber(getString(getColumnIndex(PASSPORTCOLUMNS.NUMBER.colName())));
             return passport;
         }
     }
