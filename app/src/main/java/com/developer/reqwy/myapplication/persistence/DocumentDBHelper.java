@@ -8,8 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.developer.reqwy.myapplication.base.Passport;
+import com.developer.reqwy.myapplication.document_templates.DocumentType;
 
-import org.intellij.lang.annotations.Language;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +24,8 @@ public class DocumentDBHelper extends SQLiteOpenHelper {
     private static final String PASSPORT_TABLE = "passport";
     private enum PASSPORTCOLUMNS{
 
+        ID("_id"),
+        DOC_NAME("doc_name"),
         SURNAME("surname"),
         NAME ("name"),
         FATHERNAME("fathername"),
@@ -46,7 +48,7 @@ public class DocumentDBHelper extends SQLiteOpenHelper {
     private static final String DRIVER_LICENSE_TABLE = "driver_license";
 
     public DocumentDBHelper(Context context) {
-        super(context, DATABASE_NAME, null, VERSION);
+        super(context, DATABASE_NAME, null, 35);
     }
 
 
@@ -55,6 +57,7 @@ public class DocumentDBHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("create table passport (" +
                 "_id integer primary key autoincrement, " +
                 "surname varchar(100)," +
+                "doc_name varchar(100),"+
                 " name varchar(100)," +
                 "fathername varchar(100)," +
                 " gender varchar(100)," +
@@ -66,10 +69,51 @@ public class DocumentDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PASSPORT_TABLE);
+        onCreate(sqLiteDatabase);
+    }
+
+    public PassportCursor getDocument(long id, String dtype){
+        String FROM = PASSPORT_TABLE;
+        switch (DocumentType.valueOf(dtype)){
+            case PASSPORT:
+                FROM = PASSPORT_TABLE;
+                break;
+            case DRIVER_LICENCE:
+                FROM = DRIVER_LICENSE_TABLE;
+                break;
+        }
+        Cursor c = getReadableDatabase().query(FROM, null, "_id=?", new String[] { String.valueOf(id) }, null, null, null);
+        if (c.isBeforeFirst()){
+            if (c.getCount() > 0){
+                c.moveToFirst();
+            }
+        }
+        return new PassportCursor(c);
+    }
+
+
+    public int deletePassport(long id){
+        return getWritableDatabase().delete(PASSPORT_TABLE, "_id=?", new String[] { String.valueOf(id) });
+    }
+
+    public int updatePassort(long id, Map<String, String> passport){
+        ContentValues cv = new ContentValues();
+        cv.put(PASSPORTCOLUMNS.DOC_NAME.colName(), passport.get("Наименование документа"));
+        cv.put(PASSPORTCOLUMNS.SURNAME.colName(), passport.get("Фамилия"));
+        cv.put(PASSPORTCOLUMNS.NAME.colName(), passport.get("Имя"));
+        cv.put(PASSPORTCOLUMNS.FATHERNAME.colName(), passport.get("Отчество"));
+        cv.put(PASSPORTCOLUMNS.GENDER.colName(), passport.get("Пол"));
+        cv.put(PASSPORTCOLUMNS.BD_DATE.colName(), passport.get("Дата рождения"));
+        cv.put(PASSPORTCOLUMNS.BD_PLACE.colName(), passport.get("Место рождения"));
+        cv.put(PASSPORTCOLUMNS.NUMBER.colName(), passport.get("Номер"));
+        return getWritableDatabase().update(PASSPORT_TABLE,
+                cv,"_id=?", new String[] { String.valueOf(id) });
     }
 
     public long savePassport(Map<String, String> passport){
         ContentValues cv = new ContentValues();
+        cv.put(PASSPORTCOLUMNS.DOC_NAME.colName(), passport.get("Наименование документа"));
         cv.put(PASSPORTCOLUMNS.SURNAME.colName(), passport.get("Фамилия"));
         cv.put(PASSPORTCOLUMNS.NAME.colName(), passport.get("Имя"));
         cv.put(PASSPORTCOLUMNS.FATHERNAME.colName(), passport.get("Отчество"));
@@ -109,9 +153,14 @@ public class DocumentDBHelper extends SQLiteOpenHelper {
 
         @Override
         public Map<String, String> getPassport() {
-            if (isBeforeFirst() || isAfterLast())
+            if (isBeforeFirst()){
                 return null;
+            } else if (isAfterLast()) {
+                return null;
+            }
             Map<String, String> passport = new HashMap<>();
+            passport.put("id", "" + getLong(getColumnIndex(PASSPORTCOLUMNS.ID.colName())));
+            passport.put("Наименование документа", "" + getString(getColumnIndex(PASSPORTCOLUMNS.DOC_NAME.colName())));
             passport.put("Фамилия", getString(getColumnIndex(PASSPORTCOLUMNS.SURNAME.colName())));
             passport.put("Имя", getString(getColumnIndex(PASSPORTCOLUMNS.NAME.colName())));
             passport.put("Отчество", getString(getColumnIndex(PASSPORTCOLUMNS.FATHERNAME.colName())));

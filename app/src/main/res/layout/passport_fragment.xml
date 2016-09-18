@@ -1,92 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <Button
+        android:id="@+id/passportDeleteButton"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Удалить"/>
+
+    <Button
+        android:id="@+id/passportEditButton"
+        android:layout_alignParentTop="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/passportDeleteButton"
+        android:text="Редактировать"/>
 
     <TextView
-        android:layout_width="match_parent"
+        android:id="@+id/passportDocName"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Фамилия"
-        style="?android:listSeparatorTextViewStyle"
-        />
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="15sp"
+        android:layout_marginTop="15sp"
+        android:textSize="25sp"
+        android:textColor="@color/doc_name"
+        android:text="DOCNAME"/>
     <TextView
-        android:layout_width="match_parent"
+        android:id="@+id/passportSurnameField"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Имя"
-        style="?android:listSeparatorTextViewStyle"
-        />
+        android:layout_below="@id/passportEditButton"
+        android:layout_marginTop="20sp"
+        android:text="Фамилия"/>
     <EditText
+        android:id="@+id/passportSurnameEdit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Отчество"
-        style="?android:listSeparatorTextViewStyle"
-        />
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Пол"
-        style="?android:listSeparatorTextViewStyle"
-        />
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Дата рождения"
-        style="?android:listSeparatorTextViewStyle"
-        />
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Место рождения"
-        style="?android:listSeparatorTextViewStyle"
-        />
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Серия / номер"
-        style="?android:listSeparatorTextViewStyle"
-        />
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginTop="20sp"
+        android:layout_below="@id/passportEditButton"
+        android:hint="Surname"
+        android:textSize="12sp"
+        android:layout_toRightOf="@id/passportSurnameField"
         />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/passportNameField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/passportSurnameEdit"
+        android:text="Имя"/>
+    <EditText
+        android:id="@+id/passportNameEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="NAME"
+        android:textSize="12sp"
+        android:layout_below="@id/passportSurnameEdit"
+        android:layout_toRightOf="@id/passportNameField"
+        />
+
+    <TextView
+        android:id="@+id/passportFatherNameField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/passportNameEdit"
+        android:text="Отчество"/>
+    <EditText
+        android:id="@+id/passportFatherNameEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="FatherName"
+        android:textSize="12sp"
+        android:layout_below="@id/passportNameEdit"
+        android:layout_toRightOf="@id/passportFatherNameField"
+        />
+
+    <TextView
+        android:id="@+id/passportGenderField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/passportFatherNameEdit"
+        android:text="Пол"/>
+    <EditText
+        android:id="@+id/passportGenderEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Sex"
+        android:textSize="12sp"
+        android:layout_below="@id/passportFatherNameEdit"
+        android:layout_toRightOf="@id/passportGenderField"
+        />
+    <TextView
+        android:id="@+id/passportBirthdayDateField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/passportGenderEdit"
+        android:layout_below="@id/passportFatherNameEdit"
+        android:text="Дата рождения"/>
+    <EditText
+        android:id="@+id/passportBirthdayDayEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Date"
+        android:textSize="12sp"
+        android:layout_below="@id/passportFatherNameEdit"
+        android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@id/passportBirthdayDateField"
+        />
+    <TextView
+        android:id="@+id/passportPlaceOfBirthField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/passportGenderEdit"
+        android:text="Место рождения"/>
+    <EditText
+        android:id="@+id/passportPlaceOfBirthEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="PlaceOfBirth"
+        android:textSize="12sp"
+        android:layout_below="@id/passportGenderEdit"
+        android:layout_toRightOf="@id/passportPlaceOfBirthField"
+        />
+
+    <TextView
+        android:id="@+id/passportNumberField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/passportPlaceOfBirthEdit"
+        android:text="Серия / номер"/>
+    <EditText
+        android:id="@+id/passportNumberEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="№ of document"
+        android:textSize="12sp"
+        android:layout_below="@id/passportPlaceOfBirthEdit"
+        android:layout_toRightOf="@id/passportNumberField"
+        />
+
+    <Button
+        android:id="@+id/passportShareButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20sp"
+        android:layout_below="@id/passportNumberEdit"
+        android:text="Поделиться"/>
+</RelativeLayout>

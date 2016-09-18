@@ -54,7 +54,7 @@ public class  MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (resultCode){
             case Activity.RESULT_OK: {
@@ -65,6 +65,25 @@ public class  MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this,
                                 "Новый документ успешно сохранён.",
                                 Toast.LENGTH_SHORT).show();
+                        String orientation = OrientationUtils.getScreenOrientation(MainActivity.this);
+                        if (orientation.equals("A")) {
+                            FragmentManager fm = getFragmentManager();
+                            Fragment fragment = fm.findFragmentById(R.id.representation_fragment_container);
+                            if (fragment == null) {
+                                fragment = new DocumentFragment();//
+                                Bundle args = new Bundle();
+                                args.putLong("id", data.getLongExtra("id", -1L));
+                                fragment.setArguments(args);
+                            } else {
+                                fragment = new DocumentFragment();//
+                                Bundle args = new Bundle();
+                                args.putLong("id", data.getLongExtra("id", -1L));
+                                fragment.setArguments(args);
+                                fm.beginTransaction().replace(R.id.representation_fragment_container, fragment).commit();
+                            }
+                        } else if (orientation.equals("P")){
+
+                        }
                     }
                 });
                 break;
@@ -87,6 +106,14 @@ public class  MainActivity extends AppCompatActivity {
         }
     }
 
+
+    public void onDelete(){
+        FragmentManager fm = getFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.representation_fragment_container);
+        fm.beginTransaction().remove(fragment).commit();
+        DocumentListFragment listFragment = (DocumentListFragment) fm.findFragmentById(R.id.doc_list_fragment);
+        listFragment.refreshList();
+    }
 
 
     private void startCameraActivity(){

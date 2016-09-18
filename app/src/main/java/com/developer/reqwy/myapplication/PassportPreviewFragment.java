@@ -1,11 +1,14 @@
 package com.developer.reqwy.myapplication;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +37,7 @@ public class PassportPreviewFragment extends Fragment{
     private EditText dateOfBirth;
     private EditText placeOfBirth;
     private EditText number;
-    private Button save; // TODO some database work outa here
+    private Button save;
     private Button cancel;
 
     @Override
@@ -203,17 +206,61 @@ public class PassportPreviewFragment extends Fragment{
         });
 
         save.setOnClickListener(new View.OnClickListener() {
+
+            private String doc_name;
+
             @Override
             public void onClick(View view) {
-                DocumentDBHelper helper = new DocumentDBHelper(getActivity());
-                long code = helper.savePassport(passport);
 
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Введите наименование для сохраняемого документа");
+
+                final EditText input = new EditText(getActivity());
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        doc_name = input.getText().toString();
+                        DocumentDBHelper helper = new DocumentDBHelper(getActivity());
+                        if (doc_name != null) {
+                            passport.put("Наименование документа", doc_name);
+                            final long code = helper.savePassport(passport);
+                            finish(code);
+                        }
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        doc_name = null;
+                    }
+                });
+
+                builder.show();
+
+
+            }
+
+            private void finish(long code){
                 if (code != -1) {
                     Intent data = prepareResultIntent();
-                    getActivity().setResult(Activity.RESULT_OK, data);
+                    data.putExtra("id", code);
+                    if (getActivity().getParent() == null) {
+                        getActivity().setResult(Activity.RESULT_OK, data);
+                    } else {
+                        getActivity().getParent().setResult(Activity.RESULT_OK, data);
+                    }
                     getActivity().finish();
                 } else {
-                    getActivity().setResult(500);
+                    if (getActivity().getParent() == null) {
+                        getActivity().setResult(500);
+                    } else {
+                        getActivity().getParent().setResult(500);
+                    }
                     getActivity().finish();
                 }
             }

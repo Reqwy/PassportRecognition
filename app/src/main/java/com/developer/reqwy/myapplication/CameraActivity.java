@@ -18,6 +18,7 @@ package com.developer.reqwy.myapplication;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 public class CameraActivity extends Activity {
@@ -31,5 +32,10 @@ public class CameraActivity extends Activity {
                     .replace(R.id.container, Camera2BasicFragment.newInstance())
                     .commit();
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
