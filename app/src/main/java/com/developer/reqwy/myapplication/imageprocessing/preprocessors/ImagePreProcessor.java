@@ -100,6 +100,17 @@ public class ImagePreProcessor implements Runnable {
     public void publishRecognitionResults(Map<String, String> document){
         Log.d("Processing", "In publishing.");
         Intent i = new Intent(context.getActivity(), PreviewActivity.class);
+        if (docType.equals(DocumentType.PASSPORT)){
+            String address1 = document.get("Место рождения1");
+            String address2 = document.get("Место рождения2");
+            String finalAddr;
+            address1 = address1.trim();
+            address1 = address1.replaceAll("[^a-zA-Zа-яА-я0-9:]", "");
+            address2 = address2.replaceAll("[^a-zA-Zа-яА-я0-9:]", "");
+            finalAddr = address1.trim().replace(address2, "") + address2.trim();
+            finalAddr = finalAddr.trim();
+            document.put("Место рождения", finalAddr);
+        }
         serializeDocToIntent(i, document);
         context.startActivityForResult(i, requestCode);
     }

@@ -308,7 +308,10 @@ public class DocumentFragment extends Fragment {
             shareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // Share code here
+                    Intent i = new Intent(Intent.ACTION_SEND);
+                    i.setType("text/plain");
+                    i.putExtra(Intent.EXTRA_TEXT, convertDocToMessage());
+                    startActivity(i);
                 }
             });
         } else {
@@ -324,6 +327,15 @@ public class DocumentFragment extends Fragment {
         } else {
             ((MainActivity)getActivity()).onDelete();
         }
+    }
+
+    private String convertDocToMessage(){
+        String resString = "";
+        for (String key : document.keySet()){
+            resString += key + ": " + document.get(key) + "\r\n";
+        }
+        resString += "Документ сохранён в приложении PassportRecognition";
+        return resString;
     }
 
     @Override

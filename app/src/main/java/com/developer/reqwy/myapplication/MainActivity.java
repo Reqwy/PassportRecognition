@@ -118,7 +118,7 @@ public class  MainActivity extends AppCompatActivity {
 
     private void startCameraActivity(){
         Intent i = new Intent(this, CameraActivity.class);
-        startActivity(i);
+        startActivityForResult(i, 24);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
