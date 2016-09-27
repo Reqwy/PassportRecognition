@@ -29,14 +29,14 @@
         android:layout_marginTop="15sp"
         android:textSize="25sp"
         android:textColor="@color/doc_name"
-        android:text="DOCNAME"/>
+        android:text="DOCNAME" />
     <TextView
         android:id="@+id/passportSurnameField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/passportEditButton"
         android:layout_marginTop="20sp"
-        android:text="Фамилия"/>
+        android:text="Фамилия" />
     <EditText
         android:id="@+id/passportSurnameEdit"
         android:layout_width="match_parent"
@@ -45,6 +45,7 @@
         android:layout_below="@id/passportEditButton"
         android:hint="Surname"
         android:textSize="12sp"
+        android:backgroundTint="@color/accent"
         android:layout_toRightOf="@id/passportSurnameField"
         />
 

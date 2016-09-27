@@ -4,9 +4,10 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,7 +15,7 @@ import android.widget.Toast;
 
 import com.developer.reqwy.myapplication.utils.OrientationUtils;
 
-public class  MainActivity extends AppCompatActivity {
+public class  MainActivity extends Activity {
 
     private static final String TAG = "MAIN_ACTIVITY";
     @Override
@@ -31,7 +32,8 @@ public class  MainActivity extends AppCompatActivity {
                 startCameraActivity();
             }
         });
-
+        fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.accent)));
+        fab.setImageTintList(ColorStateList.valueOf(Color.WHITE));
 
         FragmentManager fm = getFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.doc_list_fragment);

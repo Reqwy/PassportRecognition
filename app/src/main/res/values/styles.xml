@@ -14,5 +14,14 @@
  limitations under the License.
 -->
 <resources>
-    <style name="MaterialTheme" parent="android:Theme.Material.Light.NoActionBar.Fullscreen" />
+    <style name="AppTheme" parent="android:Theme.Material.Light">
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+        <item name="android:colorAccent">@color/accent</item>
+    </style>
+    <style name="AppSupportTheme" parent="Theme.AppCompat.Light">
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+        <item name="android:colorAccent">@color/accent</item>
+    </style>
 </resources>

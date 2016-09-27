@@ -18,12 +18,8 @@
 <resources>
     <string name="intro_message">
         <![CDATA[
-        
-            
-            This sample demonstrates the basic use of Camera2 API. Check the source code to see how
-            you can display camera preview and take pictures.
-            
-        
+        Вам нужно сфотографировать документ, который вы хотите распознать. Наведите поля вспомогательного
+        интерфейса на поля документа и сфотографируйте его. После этого начнётся процесс распознавания.
         ]]>
     </string>
 </resources>

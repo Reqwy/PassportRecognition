@@ -17,4 +17,7 @@
 <resources>
     <color name="control_background">#cc4285f4</color>
     <color name="doc_name">#F2C72B</color>
+    <color name="primary">#FF9800</color>
+    <color name="accent">#E91E63</color>
+    <color name="primary_dark">#F57C00</color>
 </resources>
