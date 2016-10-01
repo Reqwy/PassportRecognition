@@ -2,6 +2,7 @@ package com.developer.reqwy.myapplication.recognition;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.developer.reqwy.myapplication.document_templates.DocumentTemplate;
@@ -68,32 +69,25 @@ public class DemonstrationRecognizer implements Recognizer {
     @Override
     public void recognize() {
         initProgressBar();
-        Client restClient = new Client();
-        restClient.applicationId = "9479662d-8de9-417b-8a5d-54f42690fa9d";
-        restClient.password = "0DSQ2HrIB3QxK+OISCkLMibc";
+        final Client restClient = new Client();
+        restClient.applicationId = "Document Recognition";
+        restClient.password = "0U3mbyUpPW3HiDAWUwobXxll";
 
 
         for (final String field : files.keySet()) {
             final File file = files.get(field);
             String language = template.getField(field).isNumber()? "Digits" : "Russian";
-
-            TextFieldSettings processingSettings = new TextFieldSettings();
+            final TextFieldSettings processingSettings = new TextFieldSettings();
             processingSettings.setLanguage(language);
-            try {
-                Task task = restClient.processTextField(file.getPath(), processingSettings);
-                while( task.isTaskActive() ) {
-                    Thread.sleep(5000);
-                    task = restClient.getTaskStatus(task.Id);
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ABBYYAsyncTask abbyTask = new ABBYYAsyncTask(restClient, file,
+                            processingSettings, callBack, field);
+                    abbyTask.execute();
                 }
-                if( task.Status == Task.TaskStatus.Completed ) {
-                    String result = restClient.downloadResult(task);
-                    callBack.getOCRCallBackResult(field, result);
-                } else {
-                    callBack.getOCRCallBackResult(field, "Unrecognized");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            });
+            t.start();
 
         }
     }

@@ -34,5 +34,5 @@ public class TextFieldSettings {
 	}
 
 	private String language = "Russian";
-	private String textType = "normal,handprinted";
+	private String textType = "normal,typewriter,ocrA";
 }

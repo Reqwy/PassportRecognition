@@ -336,7 +336,9 @@ public class DocumentFragment extends Fragment {
 
     private String convertDocToMessage(){
         String resString = "";
-        for (String key : document.keySet()){
+        String[] ordered =
+                new String[]{"Фамилия", "Имя", "Отчество", "Пол", "Дата рождения", "Место рождения", "Номер"};
+        for (String key : ordered){
             resString += key + ": " + document.get(key) + "\r\n";
         }
         resString += "Документ сохранён в приложении PassportRecognition";

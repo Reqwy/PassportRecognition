@@ -1,4 +1,6 @@
 package com.developer.reqwy.myapplication.ocrsdk;
+import android.util.Xml;
+
 import java.io.*;
 import java.net.*;
 
@@ -9,6 +11,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xmlpull.v1.XmlPullParser;
 
 public class Client {
 	public String applicationId;
@@ -165,9 +168,18 @@ public class Client {
 		StringBuffer contents = new StringBuffer();
 		Reader reader = new InputStreamReader(connection.getInputStream() ,"UTF-8");
 		BufferedReader bufReader = new BufferedReader(reader);
-		String text = null;
-		while ((text = bufReader.readLine()) != null) {
-			contents.append(text).append(System.getProperty("line.separator"));
+		XmlPullParser parser = Xml.newPullParser();
+		parser.setInput(bufReader);
+		parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+		parser.nextTag();
+		parser.nextTag();
+		if (parser.getName().equals("field")){
+			parser.nextTag();
+			if (parser.getName().equals("value")){
+				if (parser.next() == XmlPullParser.TEXT) {
+					contents.append(parser.getText());
+				}
+			}
 		}
 		return contents.toString();
 	}

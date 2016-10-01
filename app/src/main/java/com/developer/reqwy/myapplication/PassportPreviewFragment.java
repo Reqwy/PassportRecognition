@@ -56,6 +56,9 @@ public class PassportPreviewFragment extends Fragment{
         for (String s : template.getFieldNames()){
             doc.put(s, i.getStringExtra(s));
         }
+        doc.remove("Место рождения1");
+        doc.remove("Место рождения2");
+        doc.put("Место рождения", i.getStringExtra("Место рождения"));
         return  doc;
     }
 
