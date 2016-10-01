@@ -14,6 +14,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -39,12 +41,20 @@ public class DocumentListFragment extends ListFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("Creation", "DocumentLISTFragmentCreated");
-        helper = new DocumentDBHelper(getActivity());
-        cursor = helper.queryDocuments();
+        if (helper == null) {
+            helper = new DocumentDBHelper(getActivity());
+            cursor = helper.queryDocuments();
+        }
         Log.d("Creation", cursor.getCount() + " items in the list");
         adapter = new DocumentCursorAdapter(getActivity(), cursor);
         setListAdapter(adapter);
         ((DocumentCursorAdapter)getListAdapter()).notifyDataSetChanged();
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override

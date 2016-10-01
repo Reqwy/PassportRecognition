@@ -28,6 +28,10 @@
             android:name=".CameraActivity"
             android:label="Capture Document"
             android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="com.developer.reqwy.PassportRecognition"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
 
         </activity>
         <activity

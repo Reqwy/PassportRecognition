@@ -58,7 +58,12 @@ public class DocumentFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View v = inflater.inflate(R.layout.passport_fragment, container, false);
+        View v;
+        if (id != -1) {
+            v = inflater.inflate(R.layout.passport_fragment, container, false);
+        } else {
+            v = inflater.inflate(R.layout.document_fragment_default, container, false);
+        }
         initialiseInterfaceWithData(v, id, DocumentType.PASSPORT.name());
         return v;
     }
