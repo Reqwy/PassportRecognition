@@ -15,6 +15,7 @@ public class RecognizerFactory {
     private ImageSlicer slicer;
     private DocumentTemplate template;
     boolean lastProcessingWasInternet = false;
+    boolean demo = false;
 
 
     public RecognizerFactory(Context context, ImageSlicer slicer,
@@ -27,7 +28,11 @@ public class RecognizerFactory {
     public Recognizer getRecognizer(RecognizerCallBack callBack){
         if (checkInternetConnection()){
             lastProcessingWasInternet = true;
-            return new APIRecognizer((Activity) context, slicer.getFilesForApi(), template, callBack);
+            if (demo){
+                return new DemonstrationRecognizer((Activity) context, slicer.getFilesForApi(), template, callBack);
+            }else {
+                return new APIRecognizer((Activity) context, slicer.getFilesForApi(), template, callBack);
+            }
         } else {
             lastProcessingWasInternet = false;
             return new TesseractProcessing(context, slicer.getBitmapsForTesseract(), template, callBack);
